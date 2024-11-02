@@ -4,7 +4,7 @@ const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
-const moment = require('moment');
+const moment = require("moment");
 // Models
 const mongoose = require("mongoose");
 const userModel = require("./models/usermodel");
@@ -13,11 +13,15 @@ const employeeModel = require("./models/employeeModel");
 const salaryModel = require("./models/salaryModel");
 const leaveModel = require("./models/leaveModel");
 
-
 const connectDB = require("./db/db");
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://employee-frontend-phi.vercel.app/",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -52,20 +56,20 @@ app.post("/login", (req, res) => {
             user: {
               _id: user._id,
               email: user.email,
-            }
+            },
           });
         } else {
           // Password incorrect
           res.json({
             success: false,
-            message: "Password incorrect"
+            message: "Password incorrect",
           });
         }
       } else {
         // User not found
         res.json({
           success: false,
-          message: "User not found"
+          message: "User not found",
         });
       }
     })
@@ -73,12 +77,10 @@ app.post("/login", (req, res) => {
       res.status(500).json({
         success: false,
         message: "An error occurred during login",
-        error: err.message
+        error: err.message,
       });
     });
 });
-
-
 
 // <-- Department Data -->
 
@@ -148,24 +150,23 @@ const uploads = multer({ storage: storage });
 // Handle the add employee route
 
 app.post("/addEmp", uploads.single("file"), async (req, res) => {
-    try {
-        const employeeData = req.body;
+  try {
+    const employeeData = req.body;
 
-        // Handle file upload
-        if (req.file) {
-            employeeData.image = req.file.filename;
-        }
-
-        // Create the employee document
-        const employee = await employeeModel.create(employeeData);
-
-        res.json(employee);
-    } catch (err) {
-        console.error("Error saving employee:", err);
-        res.status(500).json({ error: "Failed to add employee" });
+    // Handle file upload
+    if (req.file) {
+      employeeData.image = req.file.filename;
     }
-});
 
+    // Create the employee document
+    const employee = await employeeModel.create(employeeData);
+
+    res.json(employee);
+  } catch (err) {
+    console.error("Error saving employee:", err);
+    res.status(500).json({ error: "Failed to add employee" });
+  }
+});
 
 // Retrieve Employee Data
 app.get("/getEmp", (req, res) => {
@@ -179,11 +180,10 @@ app.get("/getEmp", (req, res) => {
 app.get("/viewEmp/:id", (req, res) => {
   const { id } = req.params;
   employeeModel
-    .findById({_id:id})
+    .findById({ _id: id })
     .then((result) => res.json(result))
     .catch((err) => res.json(err));
 });
-
 
 // Delete Employee Data
 app.delete("/deleteEmp/:id", (req, res) => {
@@ -234,7 +234,6 @@ app.post("/addSalary", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-
 // Retrieve salary Data
 app.get("/getSalary", (req, res) => {
   salaryModel
@@ -251,7 +250,6 @@ app.get("/getSalary/:id", (req, res) => {
     .then((result) => res.json(result))
     .catch((err) => res.json(err));
 });
-
 
 // Update salary Data
 app.put("/updateSalary/:id", (req, res) => {
@@ -325,18 +323,23 @@ app.put("/updatePassword", (req, res) => {
     .catch((err) => res.status(500).json(err)); // Send a 500 status for server errors
 });
 
-
 // Dashboard endpoint
-app.get('/adminDashboard', async (req, res) => {
+app.get("/adminDashboard", async (req, res) => {
   try {
     const totalEmployees = await employeeModel.countDocuments();
     const totalDepartments = await deptModel.countDocuments();
-    const monthlyPay = await employeeModel.aggregate([{ $group: { _id: null, totalSalary: { $sum: '$salary' } } }]);
+    const monthlyPay = await employeeModel.aggregate([
+      { $group: { _id: null, totalSalary: { $sum: "$salary" } } },
+    ]);
 
-    const leaveApplied = await leaveModel.countDocuments({ status: 'applied' });
-    const leaveApproved = await leaveModel.countDocuments({ status: 'approved' });
-    const leavePending = await leaveModel.countDocuments({ status: 'pending' });
-    const leaveRejected = await leaveModel.countDocuments({ status: 'rejected' });
+    const leaveApplied = await leaveModel.countDocuments({ status: "applied" });
+    const leaveApproved = await leaveModel.countDocuments({
+      status: "approved",
+    });
+    const leavePending = await leaveModel.countDocuments({ status: "pending" });
+    const leaveRejected = await leaveModel.countDocuments({
+      status: "rejected",
+    });
 
     res.json({
       totalEmployees,
@@ -351,10 +354,9 @@ app.get('/adminDashboard', async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running in the port ${process.env.PORT} `);

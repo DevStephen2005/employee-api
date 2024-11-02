@@ -1,6 +1,9 @@
 require('dotenv').config(); // Load environment variables from .env file
 const express = require("express");
 const app = express();
+app.listen(process.env.PORT, () => {
+  console.log(`Server running in the port ${process.env.PORT} `);
+});
 const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
@@ -24,8 +27,18 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://employee-frontend-phi.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 
 app.use(express.static("public"));
 // app.use('/uploads', express.static('uploads'));
@@ -360,6 +373,4 @@ app.get("/adminDashboard", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running in the port ${process.env.PORT} `);
-});
+

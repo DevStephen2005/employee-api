@@ -19,7 +19,7 @@ const connectDB = require("./db/db");
 // Middlewares
 app.use(
   cors({
-    origin: "https://employee-frontend-phi.vercel.app/",
+    origin: "https://employee-frontend-phi.vercel.app",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   })

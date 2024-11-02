@@ -20,14 +20,10 @@ const leaveModel = require("./models/leaveModel");
 const connectDB = require("./db/db");
 
 // Middlewares
-app.use(
-  cors({
-    origin: "https://employee-frontend-phi.vercel.app",
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-  })
-);
-
+app.use(cors({
+  origin: 'https://employee-frontend-phi.vercel.app', // Allow only your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Add any other HTTP methods you are using
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -38,6 +34,11 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
 });
+
+app.options('*', cors({
+  origin: 'https://employee-frontend-phi.vercel.app',
+  credentials: true,
+}));
 
 
 app.use(express.static("public"));
